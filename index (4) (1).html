@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вяжем вместе — расчёт пряжи и инструкции</title>
+<style>
+  :root{
+    --bg:#faf3e8;
+    --panel:#fffaf2;
+    --ink:#3d3226;
+    --muted:#8a7a68;
+    --line:#e3d5c0;
+    --accent:#b5651d;
+    --accent-dark:#8f4d13;
+    --gold:#c99a4b;
+    --ok:#4e7a4e;
+    --shadow:0 6px 18px rgba(93,64,35,.10);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Georgia","Times New Roman",serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:"Georgia",serif;margin:0 0 .5em}
+  a{color:var(--accent-dark)}
+  .container{max-width:1080px;margin:0 auto;padding:0 20px;position:relative;z-index:2}
+
+  /* ---------- АНИМИРОВАННЫЙ ФОН ---------- */
+  .bg-anim{
+    position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  }
+  .bg-anim .blob{
+    position:absolute;border-radius:50%;filter:blur(70px);opacity:.35;
+    animation:float 18s ease-in-out infinite;
+  }
+  .bg-anim .b1{width:420px;height:420px;background:#e8c9a0;top:-120px;left:-100px;animation-delay:0s}
+  .bg-anim .b2{width:360px;height:360px;background:#dfb8a0;bottom:-80px;right:-80px;animation-delay:-6s}
+  .bg-anim .b3{width:300px;height:300px;background:#e6d3b3;top:40%;left:60%;animation-delay:-12s}
+  .bg-anim .b4{width:260px;height:260px;background:#ecd9c0;top:20%;right:10%;animation-delay:-9s}
+  @keyframes float{
+    0%,100%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(30px,-40px) scale(1.08)}
+    66%{transform:translate(-20px,30px) scale(.95)}
+  }
+  .bg-anim .yarn-line{
+    position:absolute;opacity:.08;
+    animation:drift 30s linear infinite;
+  }
+  .bg-anim .y1{top:10%;left:5%;font-size:80px;animation-delay:0s}
+  .bg-anim .y2{top:55%;right:8%;font-size:60px;animation-delay:-10s}
+  .bg-anim .y3{bottom:15%;left:40%;font-size:70px;animation-delay:-20s}
+  @keyframes drift{
+    0%{transform:translateY(0) rotate(0deg)}
+    50%{transform:translateY(-30px) rotate(8deg)}
+    100%{transform:translateY(0) rotate(0deg)}
+  }
+
+  /* ---------- ШАПКА ---------- */
+  header{
+    background:rgba(242,228,208,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    box-shadow:var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  .header-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;max-width:1080px;margin:0 auto;gap:16px;flex-wrap:wrap;
+  }
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-mark{
+    width:44px;height:44px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#e0b878,#b5651d);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:22px;flex:0 0 auto;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);
+    animation:spin 12s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .logo h1{font-size:20px;margin:0;letter-spacing:.5px}
+  .logo span{display:block;font-size:12px;color:var(--muted);font-family:system-ui,sans-serif;letter-spacing:1.5px;text-transform:uppercase}
+  nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-family:system-ui,sans-serif;font-size:14px}
+  nav a{text-decoration:none;color:var(--ink);padding:6px 2px;border-bottom:2px solid transparent;transition:.2s}
+  nav a:hover{border-color:var(--accent);color:var(--accent-dark)}
+
+  /* ---------- ГЕРОЙ ---------- */
+  .hero{
+    text-align:center;padding:56px 20px 36px;position:relative;z-index:2;
+  }
+  .hero h2{font-size:34px;letter-spacing:.5px;margin-bottom:10px;
+    animation:fadeUp .8s ease both;
+  }
+  .hero p{max-width:620px;margin:0 auto;color:var(--muted);font-family:system-ui,sans-serif;font-size:16px;
+    animation:fadeUp .8s .15s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* ---------- КАЛЬКУЛЯТОР ---------- */
+  section.block{padding:10px 0 46px;position:relative;z-index:2}
+  .section-title{
+    font-size:24px;margin-bottom:6px;padding-bottom:10px;
+    border-bottom:2px solid var(--line);
+  }
+  .section-sub{color:var(--muted);font-family:system-ui,sans-serif;font-size:14px;margin:0 0 24px}
+
+  .calc-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:26px;box-shadow:var(--shadow);
+    transition:box-shadow .3s;
+  }
+  .calc-card:hover{box-shadow:0 12px 32px rgba(93,64,35,.14)}
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .field label{display:block;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.3px}
+  .field input,.field select{
+    width:100%;padding:11px 12px;font-size:15px;font-family:system-ui,sans-serif;
+    border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);
+    transition:.2s;
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(181,101,29,.12)}
+  .btn{
+    display:inline-block;margin-top:20px;padding:12px 28px;
+    background:linear-gradient(180deg,var(--accent),var(--accent-dark));
+    color:#fff;border:none;border-radius:8px;font-size:15px;font-family:system-ui,sans-serif;
+    font-weight:600;letter-spacing:.4px;cursor:pointer;transition:.2s;
+    box-shadow:0 3px 8px rgba(143,77,19,.25);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(143,77,19,.35)}
+  .btn.secondary{background:#fff;color:var(--accent-dark);border:1px solid var(--line);box-shadow:none}
+  .btn.secondary:hover{border-color:var(--accent)}
+
+  .results{margin-top:24px;display:none;animation:fadeIn .3s ease}
+  .results.show{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .result-note{
+    background:#fdf1e0;border-left:4px solid var(--gold);
+    padding:12px 16px;border-radius:0 8px 8px 0;font-family:system-ui,sans-serif;
+    font-size:14px;margin-bottom:16px;
+  }
+  .match-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .match-item{
+    background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    font-family:system-ui,sans-serif;font-size:14px;cursor:pointer;
+    transition:.2s;
+  }
+  .match-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(93,64,35,.1)}
+  .match-item .name{font-weight:600;color:var(--ink)}
+  .match-item .need{color:var(--muted);font-size:12px;display:block}
+  .match-item.ok{border-color:#cfe0cf;background:#f4faf4}
+  .badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+  .badge.green{background:#e3f0e3;color:var(--ok)}
+  .badge.red{background:#f6e0dc;color:#a3402c}
+  .badge.grey{background:#eee6da;color:var(--muted)}
+
+  /* ---------- КАТАЛОГ ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;cursor:pointer;transition:.25s;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;
+    opacity:0;transform:translateY(20px);
+    animation:cardIn .5s ease forwards;
+  }
+  @keyframes cardIn{to{opacity:1;transform:none}}
+  .card:hover{transform:translateY(-5px);box-shadow:0 14px 32px rgba(93,64,35,.18)}
+  .card-img{
+    height:170px;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;background:#fdf6ec;
+  }
+  .card-img svg{width:100%;height:100%;transition:transform .35s ease}
+  .card:hover .card-img svg{transform:scale(1.06)}
+  .card-body{padding:16px 18px 20px;flex:1;display:flex;flex-direction:column}
+  .card-body h4{font-size:17px;margin-bottom:4px}
+  .card-body .meta{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .card-body .meta strong{color:var(--accent-dark)}
+  .card-body .more{
+    margin-top:auto;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;
+    color:var(--accent-dark);display:flex;align-items:center;gap:6px;
+  }
+  .card-body .more::after{content:"→";transition:.2s}
+  .card:hover .more::after{transform:translateX(4px)}
+
+  .yt-btn{
+    display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+    padding:7px 14px;background:#fff;border:1px solid #e0c9b0;border-radius:20px;
+    font-family:system-ui,sans-serif;font-size:12px;font-weight:600;
+    color:#a33;text-decoration:none;transition:.2s;width:fit-content;
+  }
+  .yt-btn:hover{background:#fdf0f0;border-color:#d99;transform:translateY(-1px)}
+  .yt-btn svg{width:14px;height:14px}
+
+  /* ---------- МОДАЛЬНОЕ ОКНО ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(61,50,38,.55);
+    display:none;align-items:flex-start;justify-content:center;
+    padding:40px 16px;z-index:100;overflow-y:auto;backdrop-filter:blur(3px);
+  }
+  .overlay.open{display:flex}
+  .modal{
+    background:var(--panel);border-radius:14px;max-width:720px;width:100%;
+    box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;
+    animation:slideUp .3s ease;border:1px solid var(--line);
+  }
+  @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+    padding:24px 28px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#f2e4d0,#f7ecdb);
+  }
+  .modal-head h3{font-size:23px;margin:0}
+  .modal-head .sub{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);margin-top:2px}
+  .close-btn{
+    background:none;border:1px solid var(--line);border-radius:50%;
+    width:36px;height:36px;font-size:20px;line-height:1;cursor:pointer;
+    color:var(--muted);flex:0 0 auto;transition:.2s;
+  }
+  .close-btn:hover{background:#f0e3d0;color:var(--ink);transform:rotate(90deg)}
+  .modal-body{padding:24px 28px 30px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+  .info-box{
+    background:#fdf6ec;border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+    font-family:system-ui,sans-serif;font-size:13px;
+  }
+  .info-box .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:3px}
+  .info-box .v{font-weight:600;color:var(--ink);font-size:14px}
+  .modal h4{font-size:17px;margin:26px 0 10px;color:var(--accent-dark);border-bottom:1px solid var(--line);padding-bottom:6px}
+  .modal p{font-family:system-ui,sans-serif;font-size:14.5px;margin:0 0 10px}
+  .modal ol,.modal ul{font-family:system-ui,sans-serif;font-size:14.5px;padding-left:22px;margin:0 0 12px}
+  .modal li{margin-bottom:7px}
+  .tip{
+    background:#fdf1e0;border-left:4px solid var(--gold);padding:12px 16px;
+    border-radius:0 8px 8px 0;font-family:system-ui,sans-serif;font-size:13.5px;
+    color:#6b5540;margin-top:14px;
+  }
+  .modal-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
+  .modal-yt{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#cc3333;color:#fff;text-decoration:none;
+    padding:11px 22px;border-radius:8px;font-family:system-ui,sans-serif;
+    font-size:14px;font-weight:600;transition:.2s;
+  }
+  .modal-yt:hover{background:#aa2222;transform:translateY(-1px)}
+  .modal-yt svg{width:18px;height:18px;fill:#fff}
+
+  /* ---------- О НАС ---------- */
+  .about-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:30px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .about-card::before{
+    content:"";position:absolute;top:-60px;right:-60px;width:180px;height:180px;
+    background:radial-gradient(circle,#f0dcc0,transparent 70%);border-radius:50%;
+    pointer-events:none;
+  }
+  .about-top{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;margin-bottom:26px}
+  .about-badge{
+    flex:0 0 auto;width:110px;height:110px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#e0b878,#b5651d);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:#fff;box-shadow:0 6px 18px rgba(143,77,19,.3);
+    border:3px solid #fff;
+  }
+  .about-badge .num{font-size:36px;font-weight:700;line-height:1;font-family:"Georgia",serif}
+  .about-badge .lbl{font-size:11px;font-family:system-ui,sans-serif;letter-spacing:.5px;text-transform:uppercase;opacity:.95;margin-top:2px}
+  .about-intro{flex:1;min-width:240px}
+  .about-intro h4{font-size:20px;margin:0 0 8px;color:var(--accent-dark)}
+  .about-intro p{font-family:system-ui,sans-serif;font-size:14.5px;color:var(--ink);margin:0}
+
+  .about-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:26px}
+  .feat{
+    display:flex;gap:12px;align-items:flex-start;
+    background:#fdf6ec;border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+    transition:.25s;
+  }
+  .feat:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(93,64,35,.12);border-color:var(--gold)}
+  .feat-ico{
+    flex:0 0 auto;width:38px;height:38px;border-radius:50%;
+    background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  .feat strong{display:block;font-family:system-ui,sans-serif;font-size:14px;color:var(--ink);margin-bottom:2px}
+  .feat span{display:block;font-family:system-ui,sans-serif;font-size:12.5px;color:var(--muted);line-height:1.4}
+
+  .about-personal{
+    background:linear-gradient(135deg,#fdf1e0,#f7e6d0);
+    border:1px dashed var(--gold);border-radius:12px;
+    padding:20px 22px;display:flex;gap:16px;align-items:center;
+    position:relative;
+  }
+  .about-heart{
+    font-size:30px;flex:0 0 auto;
+    animation:heartbeat 2.4s ease-in-out infinite;
+  }
+  @keyframes heartbeat{
+    0%,100%{transform:scale(1)}
+    15%{transform:scale(1.15)}
+    30%{transform:scale(1)}
+    45%{transform:scale(1.1)}
+  }
+  .about-personal p{font-family:system-ui,sans-serif;font-size:15px;color:#6b4a2a;margin:0;line-height:1.6}
+  .about-personal strong{color:var(--accent-dark);font-size:16px}
+
+  /* ---------- ПОДВАЛ ---------- */
+  footer{
+    background:#ece0cc;border-top:1px solid var(--line);
+    padding:30px 20px;margin-top:40px;
+    font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);
+    position:relative;z-index:2;
+  }
+  footer .inner{max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  footer strong{color:var(--ink)}
+
+  @media(max-width:640px){
+    .calc-grid{grid-template-columns:1fr}
+    .info-grid{grid-template-columns:1fr}
+    .hero h2{font-size:26px}
+    nav ul{gap:14px;font-size:13px}
+    .modal-head,.modal-body{padding-left:18px;padding-right:18px}
+    .about-badge{width:90px;height:90px}
+    .about-badge .num{font-size:30px}
+    .about-card{padding:22px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Анимированный фон -->
+<div class="bg-anim">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+  <div class="yarn-line y1">🧶</div>
+  <div class="yarn-line y2">🪡</div>
+  <div class="yarn-line y3">🧵</div>
+</div>
+
+<!-- ШАПКА -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">🧶</div>
+      <div>
+        <h1>Вяжем вместе</h1>
+        <span>Пряжа · Расчёт · Инструкции</span>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#calc">Калькулятор</a></li>
+        <li><a href="#catalog">Каталог</a></li>
+        <li><a href="#about">О нас</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ГЕРОЙ -->
+<section class="hero">
+  <h2>Что связать из того, что осталось?</h2>
+  <p>Укажите количество пряжи и её характеристики — сервис подберёт подходящие изделия,
+     рассчитает расход и покажет пошаговую инструкцию с рекомендациями по выбору нити.</p>
+</section>
+
+<!-- КАЛЬКУЛЯТОР -->
+<section class="block" id="calc">
+  <div class="container">
+    <h3 class="section-title">Калькулятор остатков пряжи</h3>
+    <p class="section-sub">Все поля обязательны. Расход указан для стандартных размеров (S–M).</p>
+
+    <div class="calc-card">
+      <div class="calc-grid">
+        <div class="field">
+          <label for="grams">Осталось пряжи, грамм</label>
+          <input type="number" id="grams" min="10" max="5000" step="10" placeholder="Например, 300" value="300">
+        </div>
+        <div class="field">
+          <label for="meter">Метраж в 100 г, метров</label>
+          <input type="number" id="meter" min="50" max="3000" step="10" placeholder="Например, 250" value="250">
+        </div>
+        <div class="field">
+          <label for="weight">Толщина пряжи</label>
+          <select id="weight">
+            <option value="thin">Тонкая (200–400 м / 100 г)</option>
+            <option value="medium" selected>Средняя (100–200 м / 100 г)</option>
+            <option value="thick">Толстая (50–100 м / 100 г)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fiber">Состав пряжи</label>
+          <select id="fiber">
+            <option value="wool">Шерсть / полушерсть</option>
+            <option value="acrylic" selected>Акрил / смесовая</option>
+            <option value="cotton">Хлопок / лён</option>
+            <option value="alpaca">Альпака / мохер</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" id="calcBtn">Рассчитать варианты</button>
+
+      <div class="results" id="results">
+        <div class="result-note" id="resultNote"></div>
+        <div class="match-list" id="matchList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- КАТАЛОГ -->
+<section class="block" id="catalog">
+  <div class="container">
+    <h3 class="section-title">Каталог изделий</h3>
+    <p class="section-sub">Нажмите на карточку, чтобы открыть подробную инструкцию: расход пряжи, выбор нити, пошаговое вязание и видеоурок.</p>
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<!-- О НАС -->
+<section class="block" id="about">
+  <div class="container">
+    <h3 class="section-title">О нас</h3>
+    <p class="section-sub">Немного о том, кто стоит за этим проектом.</p>
+
+    <div class="about-card">
+      <div class="about-top">
+        <div class="about-badge">
+          <span class="num">10</span>
+          <span class="lbl">лет на рынке</span>
+        </div>
+        <div class="about-intro">
+          <h4>Опыт, которому доверяют</h4>
+          <p>Мы в вязании уже более десяти лет. За это время через наши руки прошли сотни изделий —
+             от простых шапочек до сложных кардиганов. Наши специалисты — практикующие мастера,
+             которые знают о пряже и спицах не понаслышке.</p>
+        </div>
+      </div>
+
+      <div class="about-features">
+        <div class="feat">
+          <div class="feat-ico">🧶</div>
+          <div><strong>Топовые специалисты</strong><span>Мастера с многолетним опытом и любовью к делу</span></div>
+        </div>
+        <div class="feat">
+          <div class="feat-ico">📐</div>
+          <div><strong>Точные расчёты</strong><span>Проверенные схемы и рекомендации по расходу пряжи</span></div>
+        </div>
+        <div class="feat">
+          <div class="feat-ico">💛</div>
+          <div><strong>Сделано с душой</strong><span>Каждая инструкция написана тепло и понятно</span></div>
+        </div>
+      </div>
+
+      <div class="about-personal">
+        <div class="about-heart">💝</div>
+        <p><strong>Создано индивидуально для любимой бабушки.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПОДВАЛ -->
+<footer>
+  <div class="inner">
+    <div><strong>Вяжем вместе</strong> · справочный сервис по вязанию</div>
+    <div>Тёплые оттенки · деловой стиль · © 2025</div>
+  </div>
+</footer>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h3 id="mTitle">Название изделия</h3>
+        <div class="sub" id="mSub"></div>
+      </div>
+      <button class="close-btn" id="closeBtn" aria-label="Закрыть">×</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ДАННЫЕ КАТАЛОГА
+   need — минимальный расход пряжи в граммах (средняя толщина)
+   yt — ссылка на YouTube-видео с инструкцией
+   ========================================================= */
+const ITEMS = [
+  {
+    id:"tshirt", title:"Футболка спицами",
+    cat:"Одежда", need:350, level:"Средний", time:"12–15 часов",
+    fiber:"Хлопок или хлопок с акрилом (160–200 м / 50 г)",
+    needles:"Спицы № 3 и № 3,5 мм, круговые",
+    size:"42–46",
+    yt:"https://www.youtube.com/results?search_query=футболка+спицами+мастер+класс",
+    desc:"Летняя женская футболка поло спицами из мягкого хлопка. Вяжется лицевой гладью с резинкой 2×2 по низу и планкой поло. Отличный проект для тех, кто освоил базовые техники.",
+    steps:[
+      "Свяжите контрольный образец лицевой гладью и рассчитайте плотность (примерно 20 петель = 10 см).",
+      "Наберите петли для спинки (около 130 петель на размер 52–54) и провяжите 4 см резинкой 2×2.",
+      "Перейдите на лицевую гладь и вяжите до пройм (около 40 см от начала).",
+      "Закройте петли для пройм с обеих сторон, затем убавляйте по 1 петле в каждом втором ряду.",
+      "Для переда выполните разрез поло: разделите полотно на две части и вяжите планку резинкой 1×1.",
+      "Сшейте плечевые швы, наберите петли по горловине и свяжите воротник.",
+      "Рукава вяжите от пройм по кругу или прямыми и обратными рядами, завершив резинкой."
+    ],
+    tips:"Для летней футболки берите чистый хлопок или смесь с небольшим содержанием акрила — изделие будет дышать и держать форму. Если пряжи меньше 350 г, свяжите модель с коротким рукавом или без рукавов."
+  },
+  {
+    id:"sweater", title:"Свитер оверсайз",
+    cat:"Одежда", need:600, level:"Продвинутый", time:"25–30 часов",
+    fiber:"Полушерсть или смесовая пряжа (150–200 м / 100 г)",
+    needles:"Круговые спицы № 4 и № 5 мм",
+    size:"S–M (оверсайз)",
+    yt:"https://www.youtube.com/results?search_query=свитер+оверсайз+спицами+мастер+класс",
+    desc:"Свободный свитер с спущенным плечом, вяжется снизу вверх или регланом сверху. Требует значительного запаса пряжи — не менее 500–600 г.",
+    steps:[
+      "Свяжите контрольный образец и рассчитайте плотность: примерно 18 петель = 10 см.",
+      "Наберите петли для спинки (около 100 петель) и вяжите лицевой гладью 45 см.",
+      "Сформируйте проймы, закрыв по 5–6 петель с каждой стороны.",
+      "Перед вяжите аналогично, но с более глубокой горловиной.",
+      "Сшейте плечевые швы, затем боковые.",
+      "Наберите петли по горловине и свяжите бейку резинкой 1×1 — 3 см.",
+      "Рукава вяжите от проймы по кругу, убавляя петли к манжете."
+    ],
+    tips:"Для оверсайза берите пряжу с запасом 10–15%. Если остатков меньше 500 г, рассмотрите укороченный свитер или джемпер с коротким рукавом."
+  },
+  {
+    id:"cardigan", title:"Кардиган свободного кроя",
+    cat:"Одежда", need:500, level:"Продвинутый", time:"22–28 часов",
+    fiber:"Смесовая пряжа (шерсть + акрил), 160–220 м / 100 г",
+    needles:"Круговые спицы № 4,5 мм",
+    size:"S–M",
+    yt:"https://www.youtube.com/results?search_query=кардиган+спицами+мастер+класс",
+    desc:"Кардиган прямого силуэта с планкой на пуговицах. Вяжется единым полотном до пройм, затем разделяется на полочки и спинку.",
+    steps:[
+      "Наберите петли для полочек и спинки вместе (около 220 петель).",
+      "Вяжите лицевой гладью 40 см до пройм.",
+      "Разделите полотно: закройте петли пройм, выделите полочки и спинку.",
+      "Вяжите спинку и полочки отдельно до плеч.",
+      "Сшейте плечевые швы.",
+      "По краю полочек наберите петли для планки и свяжите резинкой 2×2 — 4 см, выполнив отверстия для пуговиц.",
+      "Рукава вяжите от пройм по кругу."
+    ],
+    tips:"Кардиган — самое «прожорливое» изделие после свитера. Если пряжи 400–450 г, вяжите его с коротким рукавом 3/4."
+  },
+  {
+    id:"scarf", title:"Шарф английской резинкой",
+    cat:"Аксессуары", need:200, level:"Начинающий", time:"6–8 часов",
+    fiber:"Шерсть / полушерсть (100–200 м / 100 г)",
+    needles:"Спицы № 4–5 мм",
+    size:"20 × 160 см",
+    yt:"https://www.youtube.com/results?search_query=шарф+английская+резинка+спицами+для+начинающих",
+    desc:"Классический тёплый шарф, который вяжется объёмной английской резинкой. Отличный вариант для остатков пряжи — узор скрывает неровности цвета.",
+    steps:[
+      "Наберите 30 петель (число петель должно быть нечётным).",
+      "1-й ряд: кромочная, *1 лицевая, 1 изнаночная* — повторяйте до конца, кромочная.",
+      "2-й ряд и все последующие: кромочная, *1 лицевая, накид, следующую петлю снимите не провязывая* — повторяйте, кромочная.",
+      "Вяжите полотно высотой 160 см, затем закройте петли по рисунку.",
+      "Концы шарфа можно украсить кистями длиной 8–10 см."
+    ],
+    tips:"Для шарфа берите пряжу с небольшим содержанием акрила — она меньше скатывается. Плотность вязания: 12 петель × 18 рядов = 10 × 10 см."
+  },
+  {
+    id:"hat", title:"Шапка с отворотом",
+    cat:"Аксессуары", need:100, level:"Начинающий", time:"3–4 часа",
+    fiber:"Полушерсть или акрил (150–200 м / 100 г)",
+    needles:"Чулочные спицы № 4 мм + спицы № 4,5 мм",
+    size:"Обхват головы 54–58 см",
+    yt:"https://www.youtube.com/results?search_query=шапка+спицами+для+начинающих+пошагово",
+    desc:"Простая шапка резинкой 2×2 с двойным отворотом. Вяжется по кругу, без шва. Идеально подходит для остатков пряжи от 100 г.",
+    steps:[
+      "Наберите 96 петель на спицы № 4 и замкните в круг.",
+      "Вяжите резинкой 2×2 (2 лиц., 2 изн.) 10 см — это отворот.",
+      "Перейдите на спицы № 4,5 и вяжите лицевой гладью ещё 12 см.",
+      "Начните убавления: каждые 12 петель провязывайте 2 вместе лицевой — 8 убавок в ряду.",
+      "Повторяйте убавления через ряд, пока не останется 8 петель.",
+      "Стяните оставшиеся петли нитью, закрепите и спрячьте конец."
+    ],
+    tips:"Если пряжи меньше 100 г, свяжите шапку без отворота — расход сократится до 70–80 г. Контрольный образец: 20 петель = 10 см."
+  },
+  {
+    id:"socks", title:"Носки на 5 спицах",
+    cat:"Аксессуары", need:100, level:"Средний", time:"5–6 часов",
+    fiber:"Шерсть с полиамидом (носочная), 300–400 м / 100 г",
+    needles:"Чулочные спицы № 2,5–3 мм",
+    size:"38–40",
+    yt:"https://www.youtube.com/results?search_query=носки+на+5+спицах+для+начинающих",
+    desc:"Тёплые носки классической конструкции: манжета, пятка-подкова, мысок. Необходим прочный состав пряжи с добавлением полиамида.",
+    steps:[
+      "Наберите 64 петли, распределите на 4 спицы и вяжите резинкой 1×1 или 2×2 — 8 см.",
+      "Перейдите на лицевую гладь и вяжите 12 см до начала пятки.",
+      "Пятка: петли 1-й и 4-й спиц (32 петли) вяжите прямыми и обратными рядами 6 см.",
+      "Сформируйте чашу пятки убавлениями по классической схеме.",
+      "Поднимите петли по краям пятки и вяжите стопу по кругу до мизинца.",
+      "Мысок: убавляйте по 2 петли в каждом втором ряду с двух сторон, пока не останется 8 петель. Стяните."
+    ],
+    tips:"Для долговечности добавляйте к шерсти тонкую капроновую нить. Расход на 38–40 размер — около 90–100 г."
+  },
+  {
+    id:"mittens", title:"Варежки с узором",
+    cat:"Аксессуары", need:80, level:"Средний", time:"4–5 часов",
+    fiber:"Шерсть / полушерсть, тонкая или средняя (200–300 м / 100 г)",
+    needles:"Чулочные спицы № 3 мм",
+    size:"Женские (обхват ладони 18 см)",
+    yt:"https://www.youtube.com/results?search_query=варежки+спицами+для+начинающих+пошагово",
+    desc:"Варежки с простым жаккардовым узором или полосами. Хороший способ утилизировать небольшие остатки разных цветов.",
+    steps:[
+      "Наберите 40 петель, распределите на 4 спицы, вяжите резинкой 1×1 — 6 см.",
+      "Перейдите на лицевую гладь и вяжите 4 см до основания большого пальца.",
+      "Для пальца оставьте 8 петель на булавке, наберите 8 воздушных петель.",
+      "Вяжите основную часть варежки по кругу до кончика мизинца.",
+      "Мысок: убавляйте по 2 петли в каждом втором ряду, пока не останется 8 петель. Стяните.",
+      "Палец: снимите отложенные петли, добавьте петли из перемычки, вяжите 4–5 см, закройте."
+    ],
+    tips:"На варежки уходит меньше пряжи, чем кажется: 70–80 г на пару. Узор лучше вязать контрастными остатками — так варежки будут выглядеть дизайнерскими."
+  },
+  {
+    id:"cowl", title:"Снуд (шарф-хомут)",
+    cat:"Аксессуары", need:150, level:"Начинающий", time:"4–5 часов",
+    fiber:"Мягкая полушерсть или альпака (120–180 м / 100 г)",
+    needles:"Круговые спицы № 5 мм, леска 60 см",
+    size:"Обхват 60 см, высота 30 см",
+    yt:"https://www.youtube.com/results?search_query=снуд+спицами+для+начинающих",
+    desc:"Снуд в один оборот, вяжется по кругу лицевой гладью или резинкой. Универсальный аксессуар, не требует сложных расчётов.",
+    steps:[
+      "Наберите 120 петель на круговые спицы, замкните в круг.",
+      "Вяжите резинкой 2×2 или лицевой гладью 30 см.",
+      "Закройте петли эластичным способом.",
+      "Спрячьте концы нити, отпарьте изделие через влажную ткань."
+    ],
+    tips:"Снуд из альпаки получается особенно тёплым и лёгким. Следите, чтобы пряжа не была слишком пушистой — иначе узор будет плохо читаться."
+  },
+  {
+    id:"blanket", title:"Плед из квадратов",
+    cat:"Дом", need:400, level:"Начинающий", time:"15–20 часов",
+    fiber:"Любая мягкая пряжа средней толщины, можно разные цвета",
+    needles:"Спицы № 4 мм или крючок № 4",
+    size:"100 × 100 см",
+    yt:"https://www.youtube.com/results?search_query=плед+из+квадратов+спицами+или+крючком",
+    desc:"Плед, собранный из отдельных квадратов 20 × 20 см. Идеален для утилизации остатков пряжи разных цветов и фактур.",
+    steps:[
+      "Свяжите квадрат 20 × 20 см лицевой гладью или узором «шахматка» (около 40 петель × 40 рядов).",
+      "Свяжите 25 таких квадратов (5 × 5) — количество зависит от желаемого размера.",
+      "Разложите квадраты в нужном порядке, чередуя цвета.",
+      "Сшейте квадраты между собой трикотажным швом или соедините крючком.",
+      "Обвяжите готовый плед по периметру столбиками без накида или резинкой."
+    ],
+    tips:"На один квадрат 20 × 20 см уходит около 15–20 г пряжи. Плед из 25 квадратов потребует примерно 400 г. Это отличный проект для остатков."
+  },
+  {
+    id:"bag", title:"Сумка-шоппер",
+    cat:"Дом", need:250, level:"Средний", time:"6–8 часов",
+    fiber:"Хлопок или смесовая пряжа, плотная (120–180 м / 100 г)",
+    needles:"Крючок № 3,5–4 мм или спицы № 4 мм",
+    size:"35 × 40 см",
+    yt:"https://www.youtube.com/results?search_query=сумка+шоппер+крючком+или+спицами+мастер+класс",
+    desc:"Прочная сумка-шоппер, вяжется плотным полотном без дна-шва. Хорошо держит форму благодаря хлопковой пряже.",
+    steps:[
+      "Свяжите прямоугольное полотно 35 × 80 см (основа сумки, складывается пополам).",
+      "Сложите полотно пополам и сшейте боковые стороны.",
+      "Для ручек свяжите две полосы шириной 4 см и длиной 50 см.",
+      "Пришейте ручки к верхнему краю сумки, отступив от боков по 8 см.",
+      "Для плотности можно связать подкладку из ткани."
+    ],
+    tips:"Хлопок не тянется — сумка не растянется под весом покупок. Если пряжи мало, сделайте сумку меньшего размера или с короткими ручками."
+  },
+  {
+    id:"top", title:"Топ-майка спицами",
+    cat:"Одежда", need:200, level:"Средний", time:"8–10 часов",
+    fiber:"Хлопок или вискоза (150–200 м / 50 г)",
+    needles:"Спицы № 3,5 мм, круговые",
+    size:"42–46",
+    yt:"https://www.youtube.com/results?search_query=топ+майка+спицами+для+начинающих",
+    desc:"Летний топ с тонкими бретелями или без рукавов. Вяжется лицевой гладью с ажурной каймой по низу. Экономичный проект — хватит 200 г пряжи.",
+    steps:[
+      "Свяжите образец и рассчитайте петли для обхвата груди.",
+      "Наберите петли и вяжите резинкой 1×1 — 3 см.",
+      "Перейдите на лицевую гладь, вяжите до пройм.",
+      "Для пройм закройте петли с обеих сторон, затем убавляйте по 1 петле в каждом втором ряду.",
+      "Для горловины закройте средние петли и вяжите плечи отдельно.",
+      "Сшейте плечевые швы, обвяжите проймы и горловину крючком или спицами."
+    ],
+    tips:"Топ из чистого хлопка держит форму, но может вытянуться при стирке. Сушите горизонтально. Если пряжи мало, вяжите короче или без ажурной каймы."
+  },
+  {
+    id:"legwarmers", title:"Гетры спицами",
+    cat:"Аксессуары", need:120, level:"Начинающий", time:"3–4 часа",
+    fiber:"Полушерсть или акрил (150–200 м / 100 г)",
+    needles:"Чулочные или круговые спицы № 4 мм",
+    size:"Длина 35 см, обхват 30 см",
+    yt:"https://www.youtube.com/results?search_query=гетры+спицами+для+начинающих",
+    desc:"Тёплые гетры на ноги — простой проект для начинающих. Вяжутся по кругу резинкой или лицевой гладью. Отличный способ использовать остатки пряжи.",
+    steps:[
+      "Наберите 48 петель, распределите на 4 спицы или круговые.",
+      "Вяжите резинкой 2×2 — 30 см.",
+      "Для расширения к низу можно прибавить петли в последних рядах.",
+      "Закройте петли эластичным способом.",
+      "Свяжите вторую гетру аналогично."
+    ],
+    tips:"Гетры можно носить поверх ботинок или с легкой обувью. Если пряжи мало, сделайте их короче — 20–25 см. Расход: 100–120 г на пару."
+  }
+];
+
+/* =========================================================
+   КОЭФФИЦИЕНТЫ ТОЛЩИНЫ
+   ========================================================= */
+const WEIGHT_FACTOR = { thin:0.8, medium:1, thick:1.3 };
+
+/* =========================================================
+   ПАЛИТРЫ
+   ========================================================= */
+const PALETTES = [
+  ["#e8c9a0","#c99a4b"], ["#dfb8a0","#b5651d"], ["#e6d3b3","#a67c52"],
+  ["#d9c2a3","#8f6b4a"], ["#ecd9c0","#b5895a"], ["#e3c9b8","#9c6b4a"],
+  ["#e9d6b8","#c4944f"], ["#dcc7ad","#a87c52"], ["#efe0c8","#bf8f5a"],
+  ["#e2cba8","#b08040"], ["#ecd4b0","#c09050"], ["#e5cfb5","#a87848"]
+];
+
+/* =========================================================
+   SVG-ИКОНКИ ИЗДЕЛИЙ
+   ========================================================= */
+function iconSvg(id, c1, c2){
+  const base = `<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/>
+    </linearGradient></defs>
+    <rect width="300" height="170" fill="#fdf6ec"/>`;
+
+  const shapes = {
+    tshirt:`<path d="M105 45 L85 30 L55 70 L75 85 L95 75 L95 150 L205 150 L205 75 L225 85 L245 70 L215 30 L195 45 Q150 60 105 45 Z" fill="url(#g${id})"/>
+            <path d="M130 45 Q150 65 170 45" stroke="${c2}" stroke-width="2.5" fill="none"/>
+            <path d="M95 150 L95 75 M205 150 L205 75" stroke="${c2}" stroke-width="1.5" opacity=".25"/>`,
+    sweater:`<path d="M110 35 L85 22 L55 65 L78 82 L100 68 L100 148 L200 148 L200 68 L222 82 L245 65 L215 22 L190 35 Q150 50 110 35 Z" fill="url(#g${id})"/>
+             <path d="M128 35 Q150 52 172 35" stroke="${c2}" stroke-width="3" fill="none"/>
+             <path d="M100 148 L100 68 M200 148 L200 68" stroke="${c2}" stroke-width="1.5" opacity=".2"/>`,
+    cardigan:`<path d="M110 35 L85 22 L55 65 L78 82 L100 68 L100 148 L145 148 L145 52 L155 52 L155 148 L200 148 L200 68 L222 82 L245 65 L215 22 L190 35 Q150 50 110 35 Z" fill="url(#g${id})"/>
+              <line x1="150" y1="48" x2="150" y2="148" stroke="${c2}" stroke-width="2" opacity=".5"/>
+              <circle cx="150" cy="72" r="3.5" fill="${c2}"/><circle cx="150" cy="102" r="3.5" fill="${c2}"/><circle cx="150" cy="132" r="3.5" fill="${c2}"/>`,
+    scarf:`<path d="M100 25 Q150 10 200 25 L210 45 Q165 35 155 60 L155 158 L135 158 L135 60 Q125 35 90 45 Z" fill="url(#g${id})"/>
+           <path d="M140 65 L140 152 M158 65 L158 152" stroke="${c2}" stroke-width="2" opacity=".3"/>
+           <path d="M130 158 L130 165 M140 158 L140 165 M150 158 L150 165 M160 158 L160 165" stroke="${c2}" stroke-width="2" opacity=".5"/>`,
+    hat:`<path d="M80 100 Q80 40 150 40 Q220 40 220 100 Z" fill="url(#g${id})"/>
+         <rect x="75" y="95" width="150" height="35" rx="10" fill="${c2}"/>
+         <path d="M100 40 Q150 30 200 40" stroke="${c2}" stroke-width="2" fill="none" opacity=".4"/>
+         <circle cx="150" cy="36" r="12" fill="${c1}" stroke="${c2}" stroke-width="1.5"/>`,
+    socks:`<path d="M90 20 L145 20 L145 90 Q145 125 110 135 L88 122 Q75 108 100 98 L112 92 L90 92 Z" fill="url(#g${id})"/>
+           <path d="M90 28 L145 28" stroke="${c2}" stroke-width="8" opacity=".45"/>
+           <path d="M100 92 Q120 85 145 90" stroke="${c2}" stroke-width="1.5" fill="none" opacity=".3"/>`,
+    mittens:`<path d="M105 35 Q145 18 175 38 Q192 58 182 92 L182 132 Q182 152 162 152 Q142 152 142 132 L142 98 Q132 102 122 92 Q100 62 105 35 Z" fill="url(#g${id})"/>
+            <path d="M120 50 Q150 42 168 55" stroke="${c2}" stroke-width="2" fill="none" opacity=".4"/>
+            <path d="M142 100 L142 145" stroke="${c2}" stroke-width="1.5" opacity=".25"/>`,
+    cowl:`<ellipse cx="150" cy="90" rx="72" ry="46" fill="none" stroke="url(#g${id})" stroke-width="34"/>
+          <ellipse cx="150" cy="90" rx="72" ry="46" fill="none" stroke="${c2}" stroke-width="2" opacity=".3"/>
+          <ellipse cx="150" cy="90" rx="72" ry="46" fill="none" stroke="${c1}" stroke-width="10" opacity=".15"/>`,
+    blanket:`<g>${[0,1,2,3].map(r=>[0,1,2,3].map(c=>`<rect x="${58+c*46}" y="${18+r*36}" width="42" height="32" rx="4" fill="${(r+c)%2? c1 : c2}" opacity="${(r+c)%2?.9:.65}"/>`).join('')).join('')}</g>
+             <rect x="56" y="16" width="188" height="148" rx="6" fill="none" stroke="${c2}" stroke-width="2" opacity=".4"/>`,
+    bag:`<rect x="82" y="58" width="136" height="94" rx="8" fill="url(#g${id})"/>
+         <path d="M112 58 Q112 18 150 18 Q188 18 188 58" fill="none" stroke="${c2}" stroke-width="7"/>
+         <line x1="82" y1="92" x2="218" y2="92" stroke="${c2}" stroke-width="1.5" opacity=".35"/>
+         <line x1="82" y1="120" x2="218" y2="120" stroke="${c2}" stroke-width="1.5" opacity=".25"/>`,
+    top:`<path d="M115 50 L100 38 L70 75 L88 90 L105 80 L105 145 L195 145 L195 80 L212 90 L230 75 L200 38 L185 50 Q150 65 115 50 Z" fill="url(#g${id})"/>
+         <path d="M115 50 L125 75 M185 50 L175 75" stroke="${c2}" stroke-width="2" opacity=".4"/>
+         <path d="M105 145 Q150 155 195 145" stroke="${c2}" stroke-width="2" fill="none" opacity=".3"/>`,
+    legwarmers:`<rect x="105" y="25" width="45" height="120" rx="12" fill="url(#g${id})"/>
+                 <rect x="155" y="25" width="45" height="120" rx="12" fill="url(#g${id})" opacity=".85"/>
+                 <path d="M105 40 L150 40 M105 55 L150 55 M105 70 L150 70" stroke="${c2}" stroke-width="1.5" opacity=".3"/>
+                 <path d="M155 40 L200 40 M155 55 L200 55 M155 70 L200 70" stroke="${c2}" stroke-width="1.5" opacity=".3"/>`
+  };
+  return base + (shapes[id]||'') + `</svg>`;
+}
+
+/* =========================================================
+   ОТРИСОВКА КАТАЛОГА
+   ========================================================= */
+const cardsEl = document.getElementById("cards");
+ITEMS.forEach((it, i)=>{
+  const [c1,c2] = PALETTES[i % PALETTES.length];
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.animationDelay = (i * 0.06) + "s";
+  card.innerHTML = `
+    <div class="card-img">${iconSvg(it.id, c1, c2)}</div>
+    <div class="card-body">
+      <h4>${it.title}</h4>
+      <div class="meta">${it.cat} · ${it.level}</div>
+      <div class="meta">Пряжа: <strong>≈ ${it.need} г</strong></div>
+      <a class="yt-btn" href="${it.yt}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <svg viewBox="0 0 24 24" fill="#cc3333"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.3 3.5-6.3 3.5z"/></svg>
+        Смотреть видео
+      </a>
+      <div class="more">Подробная инструкция</div>
+    </div>`;
+  card.addEventListener("click", ()=> openModal(it));
+  cardsEl.appendChild(card);
+});
+
+/* =========================================================
+   МОДАЛЬНОЕ ОКНО
+   ========================================================= */
+const overlay = document.getElementById("overlay");
+const mTitle = document.getElementById("mTitle");
+const mSub = document.getElementById("mSub");
+const mBody = document.getElementById("mBody");
+const closeBtn = document.getElementById("closeBtn");
+
+function openModal(it){
+  mTitle.textContent = it.title;
+  mSub.textContent = `${it.cat} · уровень: ${it.level} · время работы: ${it.time}`;
+  mBody.innerHTML = `
+    <div class="info-grid">
+      <div class="info-box"><span class="k">Расход пряжи</span><span class="v">≈ ${it.need} г</span></div>
+      <div class="info-box"><span class="k">Размер</span><span class="v">${it.size}</span></div>
+      <div class="info-box"><span class="k">Рекомендуемая пряжа</span><span class="v">${it.fiber}</span></div>
+      <div class="info-box"><span class="k">Инструменты</span><span class="v">${it.needles}</span></div>
+    </div>
+    <h4>Описание</h4>
+    <p>${it.desc}</p>
+    <h4>Пошаговая инструкция</h4>
+    <ol>${it.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    <div class="tip"><strong>Совет мастера:</strong> ${it.tips}</div>
+    <div class="modal-actions">
+      <a class="modal-yt" href="${it.yt}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.3 3.5-6.3 3.5z"/></svg>
+        Смотреть видеоурок
+      </a>
+      <button class="btn" onclick="document.getElementById('overlay').classList.remove('open');document.body.style.overflow=''">Понятно</button>
+      <button class="btn secondary" onclick="document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';document.getElementById('calc').scrollIntoView({behavior:'smooth'})">Проверить в калькуляторе</button>
+    </div>`;
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(){
+  overlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+closeBtn.addEventListener("click", closeModal);
+overlay.addEventListener("click", e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
+
+/* =========================================================
+   КАЛЬКУЛЯТОР
+   ========================================================= */
+const calcBtn = document.getElementById("calcBtn");
+const resultsEl = document.getElementById("results");
+const resultNote = document.getElementById("resultNote");
+const matchList = document.getElementById("matchList");
+
+calcBtn.addEventListener("click", ()=>{
+  const grams = parseFloat(document.getElementById("grams").value);
+  const meter = parseFloat(document.getElementById("meter").value);
+  const weight = document.getElementById("weight").value;
+  const fiber = document.getElementById("fiber").value;
+
+  if(!grams || grams<=0){
+    resultsEl.classList.add("show");
+    resultNote.textContent = "Укажите количество пряжи в граммах — без этого расчёт невозможен.";
+    matchList.innerHTML = "";
+    return;
+  }
+
+  const wf = WEIGHT_FACTOR[weight] || 1;
+  const fiberName = {
+    wool:"шерсть / полушерсть",
+    acrylic:"акрил / смесовая",
+    cotton:"хлопок / лён",
+    alpaca:"альпака / мохер"
+  }[fiber];
+
+  let meterFactor = 1;
+  if(meter){
+    if(meter < 100) meterFactor = 1.25;
+    else if(meter < 150) meterFactor = 1.1;
+    else if(meter > 350) meterFactor = 0.85;
+    else if(meter > 250) meterFactor = 0.92;
+  }
+
+  const matches = ITEMS.map(it=>{
+    const needed = Math.round(it.need * wf * meterFactor);
+    const ratio = grams / needed;
+    return {it, needed, ratio};
+  }).sort((a,b)=> b.ratio - a.ratio);
+
+  const enough = matches.filter(m=> m.ratio >= 1);
+
+  matchList.innerHTML = "";
+
+  if(enough.length === 0){
+    resultNote.innerHTML = `Из <strong>${grams} г</strong> пряжи (${fiberName}, ${meter||"—"} м/100 г) пока не хватает на полноценное изделие из каталога. 
+      Самый близкий вариант — <strong>${matches[0].it.title}</strong>: нужно ≈ ${matches[0].needed} г, не хватает ${Math.ceil(matches[0].needed - grams)} г.
+      Можно связать небольшой аксессуар или уменьшить размер изделия.`;
+  } else {
+    resultNote.innerHTML = `Из <strong>${grams} г</strong> пряжи (${fiberName}, ${meter||"—"} м/100 г) подходит 
+      <strong>${enough.length}</strong> изделий. Показаны варианты с запасом пряжи — от самого надёжного к минимальному.`;
+  }
+
+  matches.slice(0, 9).forEach(m=>{
+    const div = document.createElement("div");
+    div.className = "match-item" + (m.ratio >= 1 ? " ok" : "");
+    let badge;
+    if(m.ratio >= 1.15) badge = `<span class="badge green">с запасом</span>`;
+    else if(m.ratio >= 1) badge = `<span class="badge green">хватает</span>`;
+    else if(m.ratio >= 0.85) badge = `<span class="badge grey">почти</span>`;
+    else badge = `<span class="badge red">мало</span>`;
+    div.innerHTML = `
+      <div>
+        <span class="name">${m.it.title}</span>
+        <span class="need">нужно ≈ ${m.needed} г</span>
+      </div>
+      ${badge}`;
+    div.addEventListener("click", ()=> openModal(m.it));
+    matchList.appendChild(div);
+  });
+
+  resultsEl.classList.add("show");
+  resultsEl.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+</script>
+</body>
+</html>
